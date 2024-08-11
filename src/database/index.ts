@@ -1,18 +1,9 @@
-import mongoose, { InferSchemaType, model } from "mongoose";
-import { userSchema } from "./schemas/user.js";
-import { log } from "#settings";
-import chalk from "chalk";
+import { Get } from "./cruds/get.js";
+import { Set } from "./cruds/set.js";
 
-try {
-   const mongodb = await mongoose.connect(process.env.MONGO_URI, { dbName: "database" });
-   log.success(chalk.green("MongoDB connected"));
-} catch(err){
-   log.error(err);
-   process.exit(1);
+export * from "./configs/db.js";
+export * from "./configs/schema.js";
+export const FirebaseCruds = {
+    get: Get,
+    set: Set,
 }
-
-export const db = {
-   users: model("user", userSchema, "users")
-};
-
-export type MemberSchema = InferSchemaType<typeof userSchema>;

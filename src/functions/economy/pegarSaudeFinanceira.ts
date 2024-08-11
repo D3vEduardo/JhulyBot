@@ -1,18 +1,18 @@
 export function CalcSaúdeFinanceira(saldo: number) {
     if (saldo === 0) {
-        return "Ruim";
+        return "Péssima";
     } else if (saldo <= 1000) {
-        return "Média";
+        return "Ruim";
     } else if (saldo <= 10000) {
-        return "Boa";
+        return "Média";
     } else if (saldo <= 100000) {
-        return "Ótima";
+        return "Boa";
     } else if (saldo <= 1000000) {
-        return "Espetacular";
+        return "Ótima";
     } else if (saldo <= 1000000000) {
-        return "Super-Espetacular";
+        return "Espetacular";
     } else if (saldo <= 100000000000) {
-        return "Hiper-Espetacular";
+        return "Super-Espetacular";
     } else {
         return "Super-Hiper-Mega-Espetacular";
     }

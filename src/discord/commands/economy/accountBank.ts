@@ -1,8 +1,9 @@
 import { Command } from "#base";
-import { db } from "#database";
-import { CalcSaúdeFinanceira, Embed, FormatSaldo } from "#functions";
+import { CalcSaúdeFinanceira, CustomDeferReply, Embed, FormatSaldo, inCooldown } from "#functions";
 import { settings } from "#settings";
-import { ApplicationCommandOptionType, ApplicationCommandType, User } from "discord.js";
+import { FirebaseCruds } from "#database";
+import { ApplicationCommandOptionType, ApplicationCommandType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, User } from "discord.js";
+import { createRow } from "@magicyan/discord";
 
 new Command({
     name: "conta",
@@ -17,14 +18,16 @@ new Command({
         }
     ],
     async run(interaction){
+        if ( await inCooldown(interaction) ) return;
+        await CustomDeferReply(interaction);
         const Author: User = interaction.user;
-        const AuthorDb = await db.users.get(Author.id);
+        const AuthorDb = await FirebaseCruds.get(`users/${Author.id}`);
         const embed = Embed(interaction).setTitle(`${settings.emojis.banco} JhulyBank`)
         .setDescription(`Olá **${Author.displayName}**!`)
         .setFields([
             {
                 name: `${settings.emojis.cifrão} Saldo:`,
-                value: `\`\`\`${FormatSaldo(AuthorDb.saldo!.bank)}\`\`\``,
+                value: `\`\`\`${FormatSaldo(AuthorDb!.userDetails.saldo.bank)}\`\`\``,
                 inline: true
             }, {
                 name: `${settings.emojis.pix} Chave pix:`,
@@ -32,11 +35,30 @@ new Command({
                 inline: true
             }, {
                 name: `${settings.emojis.sf} Sáude financeira:`,
-                value: `\`\`\`${CalcSaúdeFinanceira(AuthorDb.saldo!.bank)}\`\`\``,
+                value: `\`\`\`${CalcSaúdeFinanceira(AuthorDb!.userDetails.saldo.bank)}\`\`\``,
                 inline: true
             }
         ]);
 
-        await interaction.reply({ embeds: [embed], ephemeral: true });
+        const row = createRow(
+            new StringSelectMenuBuilder()
+            .setCustomId("MenuBank")
+            .addOptions([
+                new StringSelectMenuOptionBuilder()
+                .setEmoji(settings.emojis.pix)
+                .setLabel("Enviar pix.")
+                .setValue("SendPix"),
+                new StringSelectMenuOptionBuilder()
+                .setEmoji(settings.emojis.depositar)
+                .setLabel("Depositar JhulyBucks.")
+                .setValue("Depositar"),
+                new StringSelectMenuOptionBuilder()
+                .setEmoji(settings.emojis.sacar)
+                .setLabel("Sacar JhulyBucks.")
+                .setValue("Sacar"),
+            ])
+        );
+
+        await interaction.editReply({ embeds: [embed], components: [row] });
     }
 });

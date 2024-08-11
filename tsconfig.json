@@ -18,6 +18,7 @@
 		"rootDir": "./src",
 		"baseUrl": "./src",
 		"paths": {
+			"#assets": ["./assets/index.ts"],
 			"#database": ["./database/index.ts"],
 			"#base": ["./discord/base/index.ts"],
 			"#functions": ["./functions/index.ts"],

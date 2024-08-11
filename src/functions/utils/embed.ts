@@ -1,7 +1,7 @@
 import { settings } from "#settings";
 import { ColorResolvable, EmbedBuilder, Interaction } from "discord.js";
 
-export function Embed(interaction: Interaction) {
+export function Embed(interaction: Interaction): EmbedBuilder {
     const UserPicture = interaction.user.displayAvatarURL();
     const UserName = interaction.user.displayName;
     const Embed: EmbedBuilder = new EmbedBuilder()
@@ -10,6 +10,6 @@ export function Embed(interaction: Interaction) {
     .setColor(settings.colors.caramel as ColorResolvable)
     .setFooter({ text: `JhulyBot ${settings.version}`, iconURL: UserPicture })
     .setTimestamp(Date.now());
-
+    
     return Embed;
 }

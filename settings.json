@@ -56,9 +56,10 @@
     "medalha_ouro": "<:medalha_ouro:1252413157905793025>",
     "medalha_prata": "<:medalha_prata:1252413261056446465>",
     "medalha_bronze": "<:medalha_bronze:1252413349296083104>",
-    "db": "<:db:1254541140191871008>",
+    "db": "<:database:1254937316913446925>",
     "bot": "<:bot:1254541502399647824>",
-    "sf": "<:saudefinanceira:1254546074534678528>"
+    "sf": "<:saudefinanceira:1254546074534678528>",
+    "dono": "<:owner:1254944100738924635>"
   },
   "version": "BETA"
 }
