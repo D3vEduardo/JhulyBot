@@ -1,5 +1,5 @@
 # Folders
-/build
+/src
 /discloud
 /deprecated
 /node_modules
@@ -7,6 +7,7 @@
 # Files
 /.env
 /.env.development
+/tsconfig.json
 /package-lock.json
 
 # Config files
