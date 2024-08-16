@@ -1,9 +1,8 @@
 import { Command } from "#base";
-import { db } from "#database";
+import { database } from "#database";
 import { Embed, inCooldown, CustomDeferReply } from "#functions";
 import { settings } from "#settings";
 import { ApplicationCommandType } from "discord.js";
-import { onValue, ref } from "firebase/database";
 
 new Command({
   name: "ping",
@@ -16,15 +15,11 @@ new Command({
 
     await CustomDeferReply(interaction);
 
-    const startTime = Date.now();
+    const after = Date.now();
+    await database.read(interaction.user.id);
+    const before = Date.now();
+    const databasePing = before - after;
     const botPing = interaction.client.ws.ping;
-
-    onValue(
-      ref(db),
-      async () => {
-        const endTime = Date.now();
-        const databasePing = endTime - startTime;
-
         await interaction.editReply({
           embeds: [
             Embed(interaction)
@@ -32,8 +27,5 @@ new Command({
               .setDescription(`${settings.emojis.bot} Ping do bot: \`${botPing}ms\`.\n${settings.emojis.db} Ping da database: \`${databasePing}ms\``),
           ],
         });
-      },
-      { onlyOnce: true }
-    );
   },
 });

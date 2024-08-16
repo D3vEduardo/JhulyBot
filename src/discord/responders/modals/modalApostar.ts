@@ -1,5 +1,5 @@
 import { Responder, ResponderType } from "#base";
-import { FirebaseCruds } from "#database";
+import { database } from "#database";
 import { Embed, FormatSaldo, inCooldown } from "#functions";
 import { settings } from "#settings";
 import { codeBlock, ColorResolvable, ModalMessageModalSubmitInteraction } from "discord.js";
@@ -19,7 +19,17 @@ new Responder({
 
         const valueAposta: number = Number(interaction.fields.getTextInputValue("ValueAposta"));
         const author = interaction.user;
-        const authorData = await FirebaseCruds.get(`/users/${author.id}`);
+        const authorData = await database.read(author.id);
+        if ( valueAposta <= 0 || isNaN(valueAposta) ) {
+            await interaction.reply({
+                embeds: [
+                    Embed(interaction).setDescription(`${error} ${author}, informe um __valor__ númerico maior que **zero**.`)
+                ]
+            });
+            return;
+        }
+
+       
 
         if ( authorData.userDetails.saldo.bank < valueAposta ) {
             await interaction.reply({
@@ -43,17 +53,8 @@ async function delay(ms: number) {
 
 async function Dados(interaction: ModalMessageModalSubmitInteraction<"cached">) {
     const author = interaction.user;
-    const authorData = await FirebaseCruds.get(`/users/${author.id}`);
+    const authorData = await database.read(author.id);
     const valueAposta = Number(interaction.fields.getTextInputValue("ValueAposta"));
-
-    if ( valueAposta >= 0 ) {
-        await interaction.reply({
-            embeds: [
-                Embed(interaction).setDescription(`${error} ${author}, informe um valor maior ou igual a zero.`)
-            ]
-        });
-        return;
-    }
 
     let dados = [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1,];
 
@@ -70,7 +71,7 @@ async function Dados(interaction: ModalMessageModalSubmitInteraction<"cached">) 
     if ( dados[0] > dados[1] ) {
 
         authorData.userDetails.saldo.bank += valueAposta;
-        await FirebaseCruds.set(`/users/${author.id}`, authorData);
+        await database.write(author.id, authorData);
 
         await interaction.editReply({
             embeds: [
@@ -96,7 +97,7 @@ async function Dados(interaction: ModalMessageModalSubmitInteraction<"cached">) 
     }
 
     authorData.userDetails.saldo.bank -= valueAposta;
-        await FirebaseCruds.set(`/users/${author.id}`, authorData);
+        await database.write(author.id, authorData);
 
         await interaction.editReply({
             embeds: [

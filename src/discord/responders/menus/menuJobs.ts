@@ -1,5 +1,5 @@
 import { Responder, ResponderType } from "#base";
-import { FirebaseCruds } from "#database";
+import { database, iStatus } from "#database";
 import { Embed, FormatSaldo, inCooldown } from "#functions";
 import { settings } from "#settings";
 import { time } from "discord.js";
@@ -13,8 +13,8 @@ new Responder({
         if ( await inCooldown(interaction) ) return;
 
         const author = interaction.user;
-        const authorData = await FirebaseCruds.get(`/users/${author.id}`);
-        const authorJob = authorData.userDetails.status ? authorData.userDetails.status.find(i => i.name === "job" ) : [];
+        const authorData = await database.read(author.id);
+        const authorJob = authorData.userDetails.status ? authorData.userDetails.status.find((i: iStatus) => i.name === "job" ) : [];
         const keyJob = interaction.values[0] as keyof typeof jobs;
         const jobSelected = jobs[keyJob];
 
@@ -48,7 +48,7 @@ new Responder({
         }];
     }
 
-        await FirebaseCruds.set(`/users/${author.id}`, authorData);
+        await database.write(author.id, authorData);
 
         await interaction.reply({ embeds: [embed] });
 

@@ -1,7 +1,7 @@
 import { Command } from "#base";
 import { CalcSaúdeFinanceira, CustomDeferReply, Embed, FormatSaldo, inCooldown } from "#functions";
 import { settings } from "#settings";
-import { FirebaseCruds } from "#database";
+import { database } from "#database";
 import { ApplicationCommandOptionType, ApplicationCommandType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
 import { createRow } from "@magicyan/discord";
 new Command({
@@ -21,7 +21,7 @@ new Command({
             return;
         await CustomDeferReply(interaction);
         const Author = interaction.user;
-        const AuthorDb = await FirebaseCruds.get(`users/${Author.id}`);
+        const AuthorDb = await database.read(interaction.user.id);
         const embed = Embed(interaction).setTitle(`${settings.emojis.banco} JhulyBank`)
             .setDescription(`Olá **${Author.displayName}**!`)
             .setFields([

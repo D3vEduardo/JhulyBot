@@ -1,5 +1,5 @@
 import { Responder, ResponderType } from "#base";
-import { FirebaseCruds } from "#database";
+import { database } from "#database";
 import { Embed, FormatSaldo, inCooldown } from "#functions";
 import { settings } from "#settings";
 import { createRow } from "@magicyan/discord";
@@ -21,7 +21,7 @@ new Responder({
     const valueStringPix = interaction.fields.getTextInputValue("ValuePix");
     const valueNumberPix = Number(valueStringPix);
     const Author = interaction.user;
-    const AuthorData = await FirebaseCruds.get(`users/${Author.id}`);
+    const AuthorData = await database.read(Author.id);
     let UserRecivePix;
     try {
       UserRecivePix = interaction.client.users.fetch(userIdRecivePix);
@@ -115,7 +115,7 @@ new Responder({
     if (await inCooldown(interaction)) return;
 
     const Author = interaction.user;
-    const AuthorData = await FirebaseCruds.get(`users/${Author.id}`);
+    const AuthorData = await database.read(Author.id);
     const valueStringDep =
       interaction.fields.getTextInputValue("ValueDepositar");
     const valueNumberDep = Number(valueStringDep);
@@ -151,7 +151,7 @@ new Responder({
     AuthorData.userDetails!.saldo.bank += valueNumberDep;
     AuthorData.userDetails!.saldo.carteira -= valueNumberDep;
 
-    await FirebaseCruds.set(`users/${Author.id}`, AuthorData);
+    await database.write(Author.id, AuthorData);
 
     await interaction.update({
       components: [],
@@ -201,7 +201,7 @@ new Responder({
   async run(interaction) {
     if (await inCooldown(interaction)) return;
     const Author = interaction.user;
-    const AuthorData = await FirebaseCruds.get(`users/${Author.id}`);
+    const AuthorData = await database.read(Author.id);
     const stringValueSaque = interaction.fields.getTextInputValue("ValueSaque");
     const numberValueSaque = Number(stringValueSaque);
 
@@ -237,7 +237,7 @@ new Responder({
 
     AuthorData.userDetails!.saldo.bank -= numberValueSaque;
     AuthorData.userDetails!.saldo.carteira += numberValueSaque;
-    await FirebaseCruds.set(`users/${Author.id}`, AuthorData);
+    await database.write(Author.id, AuthorData);
 
     await interaction.update({
       components: [],

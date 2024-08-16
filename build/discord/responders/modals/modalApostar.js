@@ -1,5 +1,5 @@
 import { Responder, ResponderType } from "#base";
-import { FirebaseCruds } from "#database";
+import { database } from "#database";
 import { Embed, FormatSaldo, inCooldown } from "#functions";
 import { settings } from "#settings";
 import { codeBlock } from "discord.js";
@@ -15,7 +15,15 @@ new Responder({
             return;
         const valueAposta = Number(interaction.fields.getTextInputValue("ValueAposta"));
         const author = interaction.user;
-        const authorData = await FirebaseCruds.get(`/users/${author.id}`);
+        const authorData = await database.read(author.id);
+        if (valueAposta <= 0 || isNaN(valueAposta)) {
+            await interaction.reply({
+                embeds: [
+                    Embed(interaction).setDescription(`${error} ${author}, informe um __valor__ númerico maior que **zero**.`)
+                ]
+            });
+            return;
+        }
         if (authorData.userDetails.saldo.bank < valueAposta) {
             await interaction.reply({
                 embeds: [
@@ -33,16 +41,8 @@ async function delay(ms) {
 }
 async function Dados(interaction) {
     const author = interaction.user;
-    const authorData = await FirebaseCruds.get(`/users/${author.id}`);
+    const authorData = await database.read(author.id);
     const valueAposta = Number(interaction.fields.getTextInputValue("ValueAposta"));
-    if (valueAposta >= 0) {
-        await interaction.reply({
-            embeds: [
-                Embed(interaction).setDescription(`${error} ${author}, informe um valor maior ou igual a zero.`)
-            ]
-        });
-        return;
-    }
     let dados = [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1,];
     await interaction.reply({ embeds: [Embed(interaction).setDescription("Sorteando o seu dado...").setColor(settings.colors.magic)] });
     await delay(Math.floor(Math.random() * 5000) + 1);
@@ -52,7 +52,7 @@ async function Dados(interaction) {
         dados = [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1,];
     if (dados[0] > dados[1]) {
         authorData.userDetails.saldo.bank += valueAposta;
-        await FirebaseCruds.set(`/users/${author.id}`, authorData);
+        await database.write(author.id, authorData);
         await interaction.editReply({
             embeds: [
                 Embed(interaction)
@@ -75,7 +75,7 @@ async function Dados(interaction) {
         return;
     }
     authorData.userDetails.saldo.bank -= valueAposta;
-    await FirebaseCruds.set(`/users/${author.id}`, authorData);
+    await database.write(author.id, authorData);
     await interaction.editReply({
         embeds: [
             Embed(interaction)

@@ -1,6 +1,6 @@
 import { jobs } from "#assets";
 import { Event } from "#base";
-import { FirebaseCruds } from "#database";
+import { database } from "#database";
 import { FormatSaldo } from "#functions";
 import { settings } from "#settings";
 import { codeBlock, EmbedBuilder } from "discord.js";
@@ -11,17 +11,17 @@ new Event({
         setInterval(() => {
             const users = interaction.users.cache;
             users.forEach(async (user) => {
-                const userData = await FirebaseCruds.get(`/users/${user.id}`);
+                const userData = await database.read(user.id);
                 if (user.id === interaction.user.id || !userData.userDetails.status)
                     return;
-                const userJobStatus = userData.userDetails.status.find(i => i.name === "job");
+                const userJobStatus = userData.userDetails.status.find((i) => i.name === "job");
                 if (userJobStatus && userJobStatus.expire > Date.now())
                     return; // ? Caso o user não tenha terminado de trabalhar
                 // ? Caso o user tenha terminado de trabalhar
                 const userJob = jobs[userJobStatus.data];
-                userData.userDetails.status = userData.userDetails.status.filter(i => i.name != "job");
+                userData.userDetails.status = userData.userDetails.status.filter((i) => i.name != "job");
                 userData.userDetails.saldo.bank += userJob.salario;
-                await FirebaseCruds.set(`users/${user.id}`, userData);
+                await database.write(user.id, userData);
                 const { job, time, dinheiro } = settings.emojis;
                 const embed = new EmbedBuilder()
                     .setTitle(`${job} Trabalho concluído`)

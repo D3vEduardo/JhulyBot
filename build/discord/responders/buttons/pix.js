@@ -1,5 +1,5 @@
 import { ResponderType, Responder } from "#base";
-import { FirebaseCruds } from "#database";
+import { database } from "#database";
 import { Embed, FormatSaldo, inCooldown } from "#functions";
 import { settings } from "#settings";
 new Responder({
@@ -11,8 +11,8 @@ new Responder({
             return;
         const numberValuePix = Number(valuePix);
         const Author = interaction.user;
-        const AuthorData = await FirebaseCruds.get(`users/${AuthorId}`);
-        const UserData = await FirebaseCruds.get(`users/${userReciveId}`);
+        const AuthorData = await database.read(AuthorId);
+        const UserData = await database.read(userReciveId);
         const userRecivePix = await interaction.client.users.fetch(userReciveId);
         if (Author.id != AuthorId) {
             await interaction.update({
@@ -36,8 +36,8 @@ new Responder({
         }
         AuthorData.userDetails.saldo.bank -= numberValuePix;
         UserData.userDetails.saldo.bank += numberValuePix;
-        await FirebaseCruds.set(`users/${Author.id}`, AuthorData);
-        await FirebaseCruds.set(`users/${userReciveId}`, UserData);
+        await database.write(AuthorId, AuthorData);
+        await database.write(userReciveId, UserData);
         await interaction.update({
             components: [],
             embeds: [

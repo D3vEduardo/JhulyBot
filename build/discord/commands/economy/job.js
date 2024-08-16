@@ -1,5 +1,5 @@
 import { Command } from "#base";
-import { FirebaseCruds } from "#database";
+import { database } from "#database";
 import { Embed, FormatSaldo, inCooldown } from "#functions";
 import { settings } from "#settings";
 import { jobs } from "#assets";
@@ -14,8 +14,8 @@ new Command({
         if (await inCooldown(interaction))
             return;
         const author = interaction.user;
-        const authorData = await FirebaseCruds.get(`/users/${author.id}`);
-        const authorJob = authorData.userDetails.status ? authorData.userDetails.status.find(i => i.name === "job") : null;
+        const authorData = await database.read(interaction.user.id);
+        const authorJob = authorData.userDetails.status ? authorData.userDetails.status.find((i) => i.name === "job") : null;
         if (authorJob && "name" in authorJob && "expire" in authorJob && new Date(authorJob.expire).getTime() > Date.now()) {
             await interaction.reply({
                 embeds: [Embed(interaction).setDescription(`${settings.emojis.error} ${author}, você ainda está trabalhando como \`${jobs[authorJob.data].name}\`. Seu expediente terminará ${time(Math.floor(authorJob.expire / 1000), "R")}.`)]
